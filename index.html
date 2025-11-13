@@ -1,1 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Official Asel Translator — Grammar v2</title>
+  <style>
+    /* Sci‑fi themed minimal CSS with light/dark modes and subtle animations */
+    :root{
+      --bg-dark:#070814;
+      --panel-dark: rgba(255,255,255,0.03);
+      --accent-1: #06b6d4;
+      --accent-2: #8b5cf6;
+      --glass: rgba(255,255,255,0.04);
+      --text-dark: #dceeef;
+      --shadow: 0 8px 30px rgba(11,12,16,0.6);
+      --glow: 0 0 18px rgba(139,92,246,0.18), 0 0 30px rgba(6,182,212,0.06);
+    }
 
+    [data-theme='light']{
+      --bg-dark: linear-gradient(135deg,#f8fafc,#e6eefc);
+      --panel-dark: rgba(2,6,23,0.02);
+      --glass: rgba(2,6,23,0.02);
+      --text-dark: #0b1220;
+      --shadow: 0 8px 24px rgba(10,12,20,0.06);
+      --glow: 0 0 12px rgba(139,92,246,0.06);
+    }
+
+    html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+    body{background:radial-gradient(1200px 600px at 10% 10%, rgba(139,92,246,0.06), transparent), radial-gradient(900px 500px at 90% 90%, rgba(6,182,212,0.04), transparent), var(--bg-dark); color:var(--text-dark); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+
+    .wrap{max-width:980px;margin:40px auto;padding:28px;border-radius:16px;box-shadow:var(--shadow);backdrop-filter:blur(8px);background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));}
+
+    header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;gap:14px;align-items:center}
+    .logo{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#051023;font-weight:700;font-size:18px;box-shadow:var(--glow)}
+    h1{margin:0;font-size:20px;letter-spacing:0.4px}
+    p.lead{margin:0;font-size:12px;opacity:0.85}
+
+    .controls{display:flex;gap:8px;align-items:center}
+    .btn{padding:8px 12px;border-radius:10px;border:none;cursor:pointer;background:transparent;color:inherit;font-weight:600}
+    .btn.primary{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));color:#051023;box-shadow:var(--glow)}
+    .btn.ghost{border:1px solid rgba(255,255,255,0.06);}
+
+    .panel{margin-top:18px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    label.small{font-size:12px;opacity:0.8;margin-bottom:6px;display:block}
+
+    textarea{width:100%;min-height:180px;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:inherit;resize:vertical;font-size:14px}
+
+    .tools{display:flex;gap:8px;margin-top:8px}
+    .meta{margin-top:10px;font-size:12px;opacity:0.75}
+    .footer{margin-top:18px;font-size:12px;opacity:0.7}
+
+    .swapbtn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;background:linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));}
+
+    .download-link{display:inline-flex;align-items:center;gap:8px}
+
+    .glow-border{border-radius:14px;padding:2px;background:linear-gradient(90deg,rgba(6,182,212,0.09),rgba(139,92,246,0.09));}
+
+    .toprow{display:flex;justify-content:space-between;gap:12px;align-items:center}
+
+    .cog{width:44px;height:44px;border-radius:999px;display:inline-grid;place-items:center;border:1px solid rgba(255,255,255,0.04);background:linear-gradient(180deg, rgba(255,255,255,0.015), transparent);cursor:pointer}
+
+    .settings-modal{position:fixed;right:20px;top:80px;width:320px;background:var(--panel-dark);border-radius:12px;padding:14px;box-shadow:var(--shadow);transform-origin:top right;display:none}
+    .settings-modal.show{display:block}
+    .settings-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.02)}
+
+    @media (max-width:900px){
+      .panel{grid-template-columns:1fr}
+      .brand h1{font-size:16px}
+      .settings-modal{left:20px;right:20px;top:120px;width:auto}
+    }
+
+    /* small animated background elements */
+    .bg-blob{position:fixed;right:-120px;top:30%;width:420px;height:420px;border-radius:50%;filter:blur(60px);opacity:0.08;pointer-events:none;background:conic-gradient(from 220deg at 50% 50%, rgba(139,92,246,0.9), rgba(6,182,212,0.8), rgba(139,92,246,0.5));transform:translateZ(0);}
+    .pulse{animation:pulse 6s ease-in-out infinite}
+    @keyframes pulse{0%{transform:scale(1);opacity:0.08}50%{transform:scale(1.05);opacity:0.12}100%{transform:scale(1);opacity:0.08}}
+
+    .chip{font-size:11px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03)}
+
+    .small-note{font-size:12px;opacity:0.75;margin-top:10px}
+  </style>
+</head>
+<body data-theme="dark">
+  <div class="bg-blob pulse" aria-hidden="true"></div>
+  <main class="wrap" role="main">
+    <header>
+      <div class="brand">
+        <div class="logo">AS</div>
+        <div>
+          <h1>Official Asel Translator</h1>
+          <p class="lead">Sci‑fi translator — English ⇄ Asel • Offline • Single file</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="chip">Sci‑Fi</div>
+        <button id="themeBtn" class="btn ghost" title="Toggle theme">Dark</button>
+        <div class="cog" id="openSettings" title="Settings">⚙️</div>
+      </div>
+    </header>
+
+    <div class="toprow" style="margin-top:16px">
+      <div style="display:flex;gap:10px;align-items:center">
+        <label class="small">Mode</label>
+        <select id="modeSelect" style="padding:8px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:inherit">
+          <option value="en-to-asel">English → Asel</option>
+          <option value="asel-to-en">Asel → English</option>
+        </select>
+        <button id="swapBtn" class="btn swapbtn">Swap ↔</button>
+      </div>
+      <div style="text-align:right">
+        <div class="meta">Longest phrase lookup: <span id="maxPhrase">1</span> words</div>
+      </div>
+    </div>
+
+    <section class="panel">
+      <div>
+        <label class="small">Input</label>
+        <textarea id="inputArea" placeholder="Type English here..."></textarea>
+        <div class="tools">
+          <button id="translateBtn" class="btn primary">Translate</button>
+          <button id="clearBtn" class="btn ghost">Clear</button>
+          <button id="copyInBtn" class="btn">Copy Input</button>
+        </div>
+      </div>
+
+      <div>
+        <label class="small">Output</label>
+        <textarea id="outputArea" readonly placeholder="Translation output"></textarea>
+        <div class="tools" style="margin-top:8px">
+          <button id="copyOutBtn" class="btn">Copy Output</button>
+          <button id="rerunBtn" class="btn ghost">Re-Run</button>
+
+          <div style="flex:1"></div>
+          <div class="download-link">
+            <button id="downloadBtn" class="btn ghost">Download Dictionary</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <strong>Notes:</strong> This uses a dictionary-driven greedy longest-phrase match plus Asel grammar rules (auto-detect with manual override). Unknown words are preserved and still receive grammar endings.
+    </div>
+  </main>
+
+  <div class="settings-modal" id="settingsModal" aria-hidden="true">
+    <h3 style="margin:0 0 8px 0">Settings</h3>
+    <div class="settings-row">
+      <div>Grammar Mode</div>
+      <div>
+        <label><input type="checkbox" id="autoDetect"/> Auto-detect (default)</label>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <div>Manual Subject</div>
+      <div>
+        <select id="manualSubject">
+          <option value="auto">Auto</option>
+          <option value="you">You (I)</option>
+          <option value="other">Someone/thing else</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <div>Manual Tense</div>
+      <div>
+        <select id="manualTense">
+          <option value="auto">Auto</option>
+          <option value="present">Present</option>
+          <option value="past">Past</option>
+          <option value="future">Future</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <div>Default Direction</div>
+      <div>
+        <select id="defaultDirection">
+          <option value="en-to-asel">English → Asel</option>
+          <option value="asel-to-en">Asel → English</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="settings-row" style="border-bottom:none;">
+      <div>Theme</div>
+      <div>
+        <button id="themeToggleSmall" class="btn ghost">Toggle</button>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+      <button id="saveSettings" class="btn primary">Save</button>
+      <button id="closeSettings" class="btn ghost">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // --- Dictionary from user's list (normalized keys) ---
+    const engToAselRaw = {
+      "called":"justranus",
+      "chips":"krookutükles",
+      "please":"sutraw",
+      "like":"subsydasem",
+      "and":"ectar",
+      "subscribe":"wasibas",
+      "today":"pasadesum",
+      "karatabasim":"karatabasim",
+      "tomorrow":"anadesum",
+      "yesterday":"lanadesum",
+      "i am":"hister",
+      "drink":"Desat",
+      "eat":"presef",
+      "going to":"tasher",
+      "bread":"Breideetus",
+      "breideetus flamezz":"Toast",
+      "pnemonoultramicroscopicsiliconovolconiosis":"laesonas",
+      "annoying":"annoying",
+      "demon":"Dertut",
+      "slayer":"Mortar",
+      "kill":"Mourtus",
+      "pillar":"Hashira",
+      "donut ( uncooked)":"holemdogh",
+      "donut (cooked)":"flamezz holemdogh",
+      "rengoku dounut":"infernataemquarthashiraflamezzholemdogh",
+      "fire":"infernataemquart",
+      "geometry":"Tergeo",
+      "to play":"rewstat",
+      "dash":"Sher",
+      "sword":"Swosher",
+      "alien":"Oteriean",
+      "out":"xscynias",
+      "turtle":"shellus",
+      "sea":"oceanum",
+      "sea turtle":"shellus oceanum",
+      "explosion":"esplasium",
+      "cheese":"sypexui",
+      "medium":"medus",
+      "rare":"scynam",
+      "medium rare":"scynam medus",
+      "well cooked":"eresum flamezz",
+      "good/well":"eresum",
+      "santa claus":"santius clatuix",
+      "miss":"taeches awesumusmaximus",
+      "teacher":"awesumusmaximus",
+      "flower":"roaseaunim",
+      "table":"tiblisoplis",
+      "asia":"Azaimus",
+      "africa":"palakaz",
+      "america":"zorakan",
+      "north":"narthes",
+      "south":"sokom",
+      "east":"etreenas",
+      "west":"wyasitum",
+      "north america":"narthes zorakan",
+      "south america":"sokom zorakan",
+      "antartica":"residar",
+      "pole":"Opli",
+      "north pole":"Narthes Opli",
+      "south pole":"Sokom Opli",
+      "shoe":"Shet",
+      "chair":"Chompli",
+      "hello":"Forout",
+      "school":"Berot",
+      "boring":"Berout",
+      "terrible":"Terhorie",
+      "horrible":"Horterie",
+      "irrigation":"Ioputer",
+      "computer":"Compot",
+      "door":"Dreot",
+      "open":"Opot",
+      "laugh":"Lophuo",
+      "proximity":"Proxemtir",
+      "air":"Aer",
+      "happy":"Hapith",
+      "animated":"Anitherted",
+      "name":"Nabe",
+      "europe":"topaisnal",
+      "australia":"smallustpalasceius",
+      "ohio":"krazeenohayless",
+      "unidentified":"finudes",
+      "flying":"flagin",
+      "object":"jebotes",
+      "what":"shenimus",
+      "disease":"malsadusem",
+      "problem":"puzebulus",
+      "entrence":"coretenece",
+      "grass":"terysanal",
+      "space":"ascephenece",
+      "manga":"aratesum",
+      "book":"lirabak",
+      "fish":"pecketel",
+      "salmon":"kechirel pecketel",
+      "cream":"feterm",
+      "cheese2":"telekop",
+      "cream cheese":"feterm telekop",
+      "bagel":"sabege",
+      "test":"teseretuml",
+      "melon":"mesarleb",
+      "potato":"weerd",
+      "boy":"har",
+      "he":"hartet",
+      "girl":"Shar",
+      "she":"Shartet",
+      "they":"thes",
+      "them":"theret",
+      "her's":"Shartus",
+      "his":"Hartus",
+      "someones or something's belongings":"des",
+      "blanket":"dovaner",
+      "house":"traneoz",
+      "slime":"eponice",
+      "is":"yur",
+      "crab":"crubasten",
+      "shimp":"mispech",
+      "london":"adolus",
+      "red":"mafel",
+      "green":"shanrak",
+      "blue":"gumko",
+      "orange":"somoras",
+      "yellow":"kiringam",
+      "purple":"japoter",
+      "pink":"nesiro",
+      "white":"saptaran",
+      "brown":"garing",
+      "black":"mui",
+      "how":"ane"
+    };
+
+    // normalize keys -> engToAsel map (lowercase)
+    const engToAsel = {};
+    Object.keys(engToAselRaw).forEach(k=> engToAsel[k.toLowerCase().trim()] = engToAselRaw[k]);
+
+    // build reverse map (asel -> english) - keep first match
+    const aselToEng = {};
+    Object.keys(engToAsel).forEach(k=>{
+      const v = engToAsel[k].toLowerCase();
+      if(!aselToEng[v]) aselToEng[v] = k;
+    });
+
+    // compute max phrase length in words
+    const maxPhraseLen = Math.max(...Object.keys(engToAsel).map(k=>k.split(' ').length));
+    document.getElementById('maxPhrase').textContent = maxPhraseLen;
+
+    // --- Grammar rules implementation ---
+    // starter mapping
+    const starters = {
+      present: { you: 'Ame', other: 'Ane' },
+      past: { you: 'Cax', other: 'Chx' },
+      future: { you: 'Imox', other: 'Imco' }
+    };
+    const verbEnd = { present: 'der', past: 'aer', future: 'lixe' };
+    const tenseSuffix = { present: 'ret', past: 'tui', future: 'exter' };
+
+    // helper: detect tense from english cues
+    function detectTenseFromEnglish(text){
+      const t = text.toLowerCase();
+      if(/\b(will|going to|gonna|shall)\b/.test(t) || /\btomorrow\b/.test(t)) return 'future';
+      if(/\b(was|were|did|had|yesterday|ago)\b/.test(t)) return 'past';
+      if(/\b(am|is|are|do|does|doing|dont|doesnt|do not)\b/.test(t)) return 'present';
+      // fallback: present
+      return 'present';
+    }
+
+    // helper: detect subject
+    function detectSubjectFromEnglish(text){
+      const t = text;
+      const hasI = /\b(I|we|me|us)\b/i.test(t);
+      const hasYou = /\b(you|your|yours)\b/i.test(t);
+      if(hasI) return 'you';
+      // treat addressed 'you' as other (since starters map treats 'you' as speaker) - keep it simple: if explicit 'you', assume other
+      if(hasYou) return 'other';
+      return 'other';
+    }
+
+    // detect gender from pronouns
+    function detectGenderFromEnglish(text){
+      if(/\b(he|him|his)\b/i.test(text)) return 'har';
+      if(/\b(she|her|hers)\b/i.test(text)) return 'shar';
+      if(/\b(they|them|their|theirs)\b/i.test(text)) return 'thar';
+      return null; // unknown
+    }
+
+    // pick a main verb candidate: naive heuristic - find first non-pronoun, non-auxiliary word
+    const auxiliaries = ['am','is','are','was','were','be','being','been','do','does','did','have','has','had','will','would','shall','should','can','could','may','might','must','to','the','a','an','in','on','at','for','with','and','but','or','of','that','this','these','those','your','you','i','he','she','they','we','me','us','my','our','their','his','her'];
+
+    function pickVerbToken(text){
+      const toks = text.replace(/[\n\t]+/g,' ').replace(/ +/g,' ').trim().split(' ').filter(Boolean);
+      for(const w of toks){
+        const lw = w.toLowerCase().replace(/[^a-z']/g,'');
+        if(!lw) continue;
+        if(auxiliaries.includes(lw)) continue;
+        // consider this a verb or main lexical item
+        return lw;
+      }
+      return toks[0] ? toks[0].toLowerCase() : '';
+    }
+
+    // special rule: keep names, animals, emotions unchanged if present in text
+    // We'll treat words that are capitalized or in a small 'whitelist' as 'unchanged'
+    const preserveList = new Set([
+      // some examples from dictionary: names, animals, emotions
+      'dog','cat','sad','happy','angry','john','mary'
+    ]);
+
+    // build greedy translator but apply grammar when translating to Asel
+    function normalizeText(t){ return t.replace(/[\n\t]+/g,' ').replace(/ +/g,' ').trim(); }
+
+    function greedyTranslate(text, dir, options={autoDetect:true, manualSubject:'auto', manualTense:'auto'}){
+      if(!text) return '';
+      // for Asel->English, keep previous simple greedy
+      if(dir === 'asel-to-en'){
+        const norm = normalizeText(text).toLowerCase();
+        const toks = norm.split(' ').filter(Boolean);
+        const out=[];
+        for(let i=0;i<toks.length;){
+          let matched=false;
+          for(let len=Math.min(maxPhraseLen, toks.length - i); len>0; len--){
+            const phrase = toks.slice(i,i+len).join(' ');
+            if(aselToEng[phrase]){ out.push(aselToEng[phrase]); matched=true; i+=len; break; }
+          }
+          if(!matched){ out.push(toks[i]); i++; }
+        }
+        return out.join(' ');
+      }
+
+      // dir === 'en-to-asel'
+      const norm = normalizeText(text);
+
+      // decide subject and tense
+      let tense = options.manualTense !== 'auto' ? options.manualTense : (options.autoDetect ? detectTenseFromEnglish(norm) : 'present');
+      let subject = options.manualSubject !== 'auto' ? options.manualSubject : (options.autoDetect ? detectSubjectFromEnglish(norm) : 'other');
+      const gender = detectGenderFromEnglish(norm); // null or har/shar/thar
+
+      // build starter
+      const starter = (starters[tense] && starters[tense][subject]) ? starters[tense][subject] : starters.present.other;
+
+      // find verb
+      const verbToken = pickVerbToken(norm) || '';
+
+      // translate tokens greedily, but if token equals verbToken and not in dictionary, use verbToken with verb ending
+      const tokens = norm.toLowerCase().split(' ').filter(Boolean);
+      const outTokens = [];
+      for(let i=0;i<tokens.length;){
+        let matched=false;
+        for(let len=Math.min(maxPhraseLen, tokens.length - i); len>0; len--){
+          const phrase = tokens.slice(i,i+len).join(' ');
+          if(engToAsel[phrase]){ outTokens.push(engToAsel[phrase]); matched=true; i+=len; break; }
+        }
+        if(!matched){
+          const w = tokens[i];
+          // if this token is the verbToken, convert to verb+ending (use original token form)
+          if(w === verbToken){
+            // preserve capitalization? we'll keep lowercase
+            const aselVerbForm = w + verbEnd[tense];
+            outTokens.push(aselVerbForm);
+          } else {
+            // preserve known preserveList and capitalized words
+            if(preserveList.has(w) || /^[A-Z]/.test(tokens[i])){
+              outTokens.push(tokens[i]);
+            } else {
+              // try translate single word if available, otherwise keep original
+              if(engToAsel[w]) outTokens.push(engToAsel[w]); else outTokens.push(w);
+            }
+          }
+          i++;
+        }
+      }
+
+      // assemble final sentence
+      // If gender present, include gender + 'yur' before verb phrase and add tenseSuffix at end.
+      // We'll build verb phrase as the first occurrence of verbToken-asel form inside outTokens (fallback: last token)
+      let verbIndex = outTokens.findIndex(t=> t.endsWith(verbEnd[tense]) || t.includes(verbToken+verbEnd[tense]));
+      if(verbIndex === -1) verbIndex = outTokens.length -1;
+
+      // Compose
+      const verbPhrase = outTokens.slice(verbIndex).join(' ');
+      const beforeVerb = outTokens.slice(0,verbIndex).join(' ');
+
+      let sentenceParts = [];
+      sentenceParts.push(starter);
+
+      if(gender){
+        sentenceParts.push(gender);
+        sentenceParts.push('yur');
+      }
+
+      if(beforeVerb) sentenceParts.push(beforeVerb);
+      if(verbPhrase) sentenceParts.push(verbPhrase);
+
+      // tense particle at end of sentence when gender used
+      if(gender){
+        sentenceParts.push(tenseSuffix[tense]);
+      }
+
+      // final small particle: following examples we default to 'ter' but for future+other use 'tum'
+      const finalParticle = (tense === 'future' && subject === 'other') ? 'tum' : 'ter';
+      sentenceParts.push(finalParticle);
+
+      return sentenceParts.filter(Boolean).join(' ');
+    }
+
+    // grammar hook - wrapper for UI
+    function applyGrammarRules(text, dir, settings){
+      // settings: {autoDetect, manualSubject, manualTense}
+      return greedyTranslate(text, dir, settings);
+    }
+
+    // DOM bindings
+    const inputArea = document.getElementById('inputArea');
+    const outputArea = document.getElementById('outputArea');
+    const translateBtn = document.getElementById('translateBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyInBtn = document.getElementById('copyInBtn');
+    const copyOutBtn = document.getElementById('copyOutBtn');
+    const rerunBtn = document.getElementById('rerunBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const swapBtn = document.getElementById('swapBtn');
+    const modeSelect = document.getElementById('modeSelect');
+    const themeBtn = document.getElementById('themeBtn');
+
+    // settings modal elements
+    const openSettings = document.getElementById('openSettings');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettings = document.getElementById('closeSettings');
+    const saveSettings = document.getElementById('saveSettings');
+    const autoDetect = document.getElementById('autoDetect');
+    const manualSubject = document.getElementById('manualSubject');
+    const manualTense = document.getElementById('manualTense');
+    const defaultDirection = document.getElementById('defaultDirection');
+    const themeToggleSmall = document.getElementById('themeToggleSmall');
+
+    // load settings from localStorage
+    const saved = JSON.parse(localStorage.getItem('asel_settings') || '{}');
+    const settings = {
+      autoDetect: saved.autoDetect !== undefined ? saved.autoDetect : true,
+      manualSubject: saved.manualSubject || 'auto',
+      manualTense: saved.manualTense || 'auto',
+      defaultDirection: saved.defaultDirection || 'en-to-asel',
+      theme: saved.theme || 'dark'
+    };
+
+    // init UI from settings
+    autoDetect.checked = settings.autoDetect;
+    manualSubject.value = settings.manualSubject;
+    manualTense.value = settings.manualTense;
+    defaultDirection.value = settings.defaultDirection;
+    document.body.setAttribute('data-theme', settings.theme === 'dark' ? 'dark' : 'light');
+    themeBtn.textContent = settings.theme === 'dark' ? 'Dark' : 'Light';
+    modeSelect.value = settings.defaultDirection;
+
+    openSettings.addEventListener('click', ()=>{
+      settingsModal.classList.toggle('show');
+    });
+    closeSettings.addEventListener('click', ()=>{ settingsModal.classList.remove('show'); });
+
+    saveSettings.addEventListener('click', ()=>{
+      settings.autoDetect = autoDetect.checked;
+      settings.manualSubject = manualSubject.value;
+      settings.manualTense = manualTense.value;
+      settings.defaultDirection = defaultDirection.value;
+      // no theme field here, use small toggle
+      localStorage.setItem('asel_settings', JSON.stringify(settings));
+      modeSelect.value = settings.defaultDirection;
+      alert('Settings saved');
+      settingsModal.classList.remove('show');
+    });
+
+    themeToggleSmall.addEventListener('click', ()=>{
+      const cur = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', cur);
+      themeBtn.textContent = cur === 'dark' ? 'Dark' : 'Light';
+      settings.theme = cur; localStorage.setItem('asel_settings', JSON.stringify(settings));
+    });
+
+    function translateAction(){
+      const dir = modeSelect.value;
+      const applySettings = { autoDetect: autoDetect.checked, manualSubject: manualSubject.value, manualTense: manualTense.value };
+      const res = applyGrammarRules(inputArea.value, dir, applySettings);
+      outputArea.value = res;
+    }
+
+    translateBtn.addEventListener('click', translateAction);
+    clearBtn.addEventListener('click', ()=>{ inputArea.value=''; outputArea.value=''; });
+    copyInBtn.addEventListener('click', ()=>navigator.clipboard?.writeText(inputArea.value).catch(()=>{}));
+    copyOutBtn.addEventListener('click', ()=>navigator.clipboard?.writeText(outputArea.value).catch(()=>{}));
+    rerunBtn.addEventListener('click', translateAction);
+
+    swapBtn.addEventListener('click', ()=>{
+      const cur = modeSelect.value;
+      modeSelect.value = cur === 'en-to-asel' ? 'asel-to-en' : 'en-to-asel';
+      const prevIn = inputArea.value;
+      inputArea.value = outputArea.value;
+      outputArea.value = prevIn;
+    });
+
+    // download dictionary as JSON (user can edit later)
+    downloadBtn.addEventListener('click', ()=>{
+      const dataStr = JSON.stringify(engToAselRaw, null, 2);
+      const blob = new Blob([dataStr], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'asel-dictionary.json'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    // theme toggle
+    let dark = document.body.getAttribute('data-theme') === 'dark';
+    themeBtn.addEventListener('click', ()=>{
+      dark = !dark;
+      document.body.setAttribute('data-theme', dark? 'dark' : 'light');
+      themeBtn.textContent = dark ? 'Dark' : 'Light';
+      settings.theme = dark? 'dark' : 'light'; localStorage.setItem('asel_settings', JSON.stringify(settings));
+    });
+
+    // keyboard shortcut: Ctrl+Enter to translate
+    document.addEventListener('keydown', (e)=>{ if((e.ctrlKey||e.metaKey) && e.key === 'Enter'){ translateAction(); }});
+
+    // auto-detect: if user pasted Asel text and many tokens match aselToEng, switch to asel->en
+    inputArea.addEventListener('input', ()=>{
+      const v = inputArea.value.trim();
+      if(v.length>0 && v.length < 120){
+        const words = v.split(/\s+/).map(s=>s.toLowerCase());
+        let aselCount=0; words.forEach(w=>{ if(aselToEng[w]) aselCount++; });
+        if(aselCount > words.length/2) modeSelect.value = 'asel-to-en';
+      }
+    });
+
+    // expose data for debugging (dev mode)
+    window.ASEL = {engToAselRaw, engToAsel, aselToEng, greedyTranslate, applyGrammarRules};
+
+  </script>
+</body>
+</html>
